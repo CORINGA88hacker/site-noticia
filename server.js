@@ -1,14 +1,16 @@
 const express = require('express');
-const fetch = require('node-fetch'); // instalar
+const fetch = require('node-fetch');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
-// Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Proxy para a API do CPF para evitar CORS
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'consulta.html'));
+});
+
 app.get('/api/cpf/:cpf', async (req, res) => {
   const cpf = req.params.cpf;
   try {
