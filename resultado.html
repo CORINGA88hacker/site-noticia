@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultado da Consulta</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 700px; margin: auto; }
+    .campo { margin-bottom: 10px; }
+    .campo strong { display: inline-block; width: 180px; }
+  </style>
+</head>
+<body>
+  <h2>Resultado da Consulta</h2>
+  <div id="dados"></div>
+
+  <script>
+    const dados = JSON.parse(localStorage.getItem("dadosConsulta"));
+    const div = document.getElementById("dados");
+
+    if (!dados) {
+      div.innerHTML = "<p>Nenhum dado encontrado. Volte e faça a consulta novamente.</p>";
+    } else {
+      let html = "";
+      for (const chave in dados) {
+        html += `<div class="campo"><strong>${chave}:</strong> ${dados[chave]}</div>`;
+      }
+      div.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
