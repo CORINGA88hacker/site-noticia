@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta CPF</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    input, button { padding: 10px; width: 100%; margin-bottom: 10px; }
+    #verResultado { display: none; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h2>Consulta CPF</h2>
+  <input type="text" id="cpf" placeholder="Digite o CPF (11 números)">
+  <button onclick="consultar()">Consultar</button>
+
+  <pre id="respostaJson"></pre>
+  <button id="verResultado" onclick="window.location.href='resultado.html'">Ver Resultado</button>
+
+  <script>
+    function consultar() {
+      const cpf = document.getElementById('cpf').value.trim();
+      const saida = document.getElementById('respostaJson');
+      const btn = document.getElementById('verResultado');
+
+      if (!/^\d{11}$/.test(cpf)) {
+        saida.textContent = "CPF inválido!";
+        btn.style.display = "none";
+        return;
+      }
+
+      fetch(`https://patronhost.online/apis/cpf.php?cpf=${cpf}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.status && json.dados) {
+            localStorage.setItem("dadosConsulta", JSON.stringify(json.dados));
+            saida.textContent = JSON.stringify(json, null, 2);
+            btn.style.display = "block";
+          } else {
+            saida.textContent = "Erro: " + (json.mensagem || "Consulta falhou.");
+            btn.style.display = "none";
+          }
+        })
+        .catch(err => {
+          saida.textContent = "Erro ao consultar: " + err.message;
+          btn.style.display = "none";
+        });
+    }
+  </script>
+</body>
+</html>
