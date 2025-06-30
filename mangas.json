@@ -3,12 +3,21 @@
     "titulo": "Naruto",
     "autor": "Masashi Kishimoto",
     "ano": 1999,
-    "genero": "Ação, Aventura"
+    "genero": "Ação, Aventura",
+    "capa": "https://upload.wikimedia.org/wikipedia/pt/6/6f/NarutoCoverTankobon1.jpg"
   },
   {
     "titulo": "One Piece",
     "autor": "Eiichiro Oda",
     "ano": 1997,
-    "genero": "Ação, Comédia"
+    "genero": "Ação, Comédia",
+    "capa": "https://jumpg-assets.tokyo-cdn.com/secure/title/100149/title_thumbnail_portrait_list/326457.jpg?hash=eS9eo7ib2mmeFf4v4yUzjQ&expires=2145884400"
+  },
+  {
+    "titulo": "Death Note",
+    "autor": "Tsugumi Ohba",
+    "ano": 2003,
+    "genero": "Mistério, Sobrenatural",
+    "capa": "https://upload.wikimedia.org/wikipedia/pt/2/29/Death_Note_Vol_1.jpg"
   }
 ]
