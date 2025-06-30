@@ -1,88 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Login - StreamFlix Pro</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="firebase-config.js"></script>
-<style>
-  body {
-    background: #121212;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-  .login-container {
-    background: #1e1e1e;
-    padding: 30px;
-    border-radius: 8px;
-    width: 320px;
-  }
-  input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 5px;
-    background: #2a2a2a;
-    color: #fff;
-  }
-  button {
-    width: 100%;
-    padding: 10px;
-    background: #e50914;
-    border: none;
-    border-radius: 5px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #b20710;
-  }
-  a {
-    color: #e50914;
-    font-size: 0.9rem;
-    display: block;
-    margin-top: 10px;
-    text-align: center;
-    text-decoration: none;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>StreamFlix - Início</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #000;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      color: #e50914;
+      font-size: 1.8rem;
+    }
+
+    header button {
+      background: #e50914;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #e5e5e5;
+    }
+
+    .cards {
+      display: flex;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .card {
+      background: #222;
+      border-radius: 10px;
+      margin-right: 15px;
+      width: 180px;
+      flex-shrink: 0;
+    }
+
+    .card img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    .card h3 {
+      padding: 10px;
+      font-size: 1rem;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-<div class="login-container">
-  <h2>Login</h2>
-  <input id="email" type="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Senha" />
-  <button onclick="login()">Entrar</button>
-  <a href="register.html">Criar conta</a>
-  <div id="error" style="color:#f33; margin-top:10px;"></div>
-</div>
+  <header>
+    <h1>StreamFlix</h1>
+    <button onclick="logout()">Sair</button>
+  </header>
 
-<script>
-  const auth = firebase.auth();
+  <main>
+    <section>
+      <h2>Filmes</h2>
+      <div class="cards" id="listaFilmes"></div>
+    </section>
+    <section>
+      <h2>Séries</h2>
+      <div class="cards" id="listaSeries"></div>
+    </section>
+  </main>
 
-  function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        window.location.href = 'index.html';
-      })
-      .catch(e => {
-        document.getElementById('error').innerText = e.message;
+  <script>
+    // Verifica login
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        carregarFilmes();
+        carregarSeries();
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
       });
-  }
-</script>
+    }
+
+    function carregarFilmes() {
+      const lista = document.getElementById('listaFilmes');
+      firebase.database().ref('filmes').once('value').then(snapshot => {
+        lista.innerHTML = '';
+        snapshot.forEach(child => {
+          const filme = child.val();
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${filme.capa}" alt="${filme.titulo}">
+            <h3>${filme.titulo}</h3>
+          `;
+          lista.appendChild(card);
+        });
+      });
+    }
+
+    function carregarSeries() {
+      const lista = document.getElementById('listaSeries');
+      firebase.database().ref('series').once('value').then(snapshot => {
+        lista.innerHTML = '';
+        snapshot.forEach(child => {
+          const serie = child.val();
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${serie.capa}" alt="${serie.titulo}">
+            <h3>${serie.titulo}</h3>
+          `;
+          lista.appendChild(card);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
