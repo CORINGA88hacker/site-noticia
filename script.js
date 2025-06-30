@@ -1,41 +1,47 @@
-let todosOsMangas = [];
-const container = document.getElementById('manga-list');
-const contador = document.getElementById('contadorMangas');
+const animeForm = document.getElementById('animeForm');
+const animeTableBody = document.querySelector('#animeTable tbody');
 
-fetch('mangas.json')
-  .then(res => res.json())
-  .then(data => {
-    todosOsMangas = data;
-    mostrarMangas(data);
-    new CountUp('contadorMangas', data.length).start();
+// Envia Anime para o Firebase
+animeForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const nome = document.getElementById('nome').value;
+  const genero = document.getElementById('genero').value;
+  const status = document.getElementById('status').value;
+  const capitulos = document.getElementById('capitulos').value;
+
+  const novoAnime = {
+    nome,
+    genero,
+    status,
+    capitulos: parseInt(capitulos)
+  };
+
+  // Salva no Firebase com ID automático
+  database.ref('animes').push(novoAnime).then(() => {
+    animeForm.reset();
+    alert("Anime adicionado com sucesso!");
   });
+});
 
-function mostrarMangas(mangas) {
-  container.innerHTML = '';
-  mangas.forEach(m => {
-    const col = document.createElement('div');
-    col.className = 'col-md-4';
-    col.innerHTML = `
-      <div class="manga-card" data-aos="zoom-in">
-        <img src="${m.capa}" alt="Capa de ${m.titulo}">
-        <h2>${m.titulo}</h2>
-        <p><i class="fa-solid fa-user"></i> ${m.autor}</p>
-        <p><i class="fa-solid fa-calendar-day"></i> ${m.ano}</p>
-        <p><i class="fa-solid fa-tag"></i> ${m.genero}</p>
-        <p><i class="fa-solid fa-book-open"></i> ${m.capitulos} capítulos</p>
-        <p><i class="fa-solid fa-signal"></i> ${m.status}</p>
-      </div>
-    `;
-    container.appendChild(col);
+// Lista os animes do Firebase
+function carregarAnimes() {
+  database.ref('animes').on('value', (snapshot) => {
+    animeTableBody.innerHTML = '';
+    snapshot.forEach((childSnapshot) => {
+      const anime = childSnapshot.val();
+      const row = `
+        <tr>
+          <td>${anime.nome}</td>
+          <td>${anime.genero}</td>
+          <td>${anime.status}</td>
+          <td>${anime.capitulos}</td>
+        </tr>
+      `;
+      animeTableBody.innerHTML += row;
+    });
   });
 }
 
-document.getElementById('pesquisa').addEventListener('input', function () {
-  const termo = this.value.toLowerCase();
-  const filtrados = todosOsMangas.filter(m =>
-    m.titulo.toLowerCase().includes(termo) ||
-    m.autor.toLowerCase().includes(termo) ||
-    m.status.toLowerCase().includes(termo)
-  );
-  mostrarMangas(filtrados);
-});
+// Iniciar
+carregarAnimes();
