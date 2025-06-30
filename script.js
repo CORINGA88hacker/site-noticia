@@ -1,47 +1,25 @@
-const animeForm = document.getElementById('animeForm');
-const animeTableBody = document.querySelector('#animeTable tbody');
+const conteudo = document.getElementById('conteudo');
 
-// Envia Anime para o Firebase
-animeForm.addEventListener('submit', function (e) {
-  e.preventDefault();
+function criarCard(tipo, id, item) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <img src="${item.capa}" alt="capa">
+    <h3>${item.nome}</h3>
+    <p>${item.genero}</p>
+    <p>${item.status}</p>
+    <a href="player.html?tipo=${tipo}&id=${id}" class="btn">Ver ${tipo === 'animes' ? 'Anime' : 'Mangá'}</a>
+  `;
+  conteudo.appendChild(div);
+}
 
-  const nome = document.getElementById('nome').value;
-  const genero = document.getElementById('genero').value;
-  const status = document.getElementById('status').value;
-  const capitulos = document.getElementById('capitulos').value;
-
-  const novoAnime = {
-    nome,
-    genero,
-    status,
-    capitulos: parseInt(capitulos)
-  };
-
-  // Salva no Firebase com ID automático
-  database.ref('animes').push(novoAnime).then(() => {
-    animeForm.reset();
-    alert("Anime adicionado com sucesso!");
-  });
-});
-
-// Lista os animes do Firebase
-function carregarAnimes() {
-  database.ref('animes').on('value', (snapshot) => {
-    animeTableBody.innerHTML = '';
-    snapshot.forEach((childSnapshot) => {
-      const anime = childSnapshot.val();
-      const row = `
-        <tr>
-          <td>${anime.nome}</td>
-          <td>${anime.genero}</td>
-          <td>${anime.status}</td>
-          <td>${anime.capitulos}</td>
-        </tr>
-      `;
-      animeTableBody.innerHTML += row;
+function carregar(tipo) {
+  firebase.database().ref(tipo).once("value", snapshot => {
+    snapshot.forEach(child => {
+      criarCard(tipo, child.key, child.val());
     });
   });
 }
 
-// Iniciar
-carregarAnimes();
+carregar('animes');
+carregar('mangas');
