@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Administração</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🎛️ Painel de Administração</h1>
+
+    <div class="card">
+      <h3>Adicionar Anime</h3>
+      <form id="animeForm">
+        <input type="text" placeholder="Nome" id="animeNome" class="form-control" required />
+        <input type="text" placeholder="Gênero" id="animeGenero" class="form-control" required />
+        <input type="text" placeholder="Status" id="animeStatus" class="form-control" required />
+        <input type="text" placeholder="Link da Capa" id="animeCapa" class="form-control" required />
+        <textarea id="animeEpisodios" placeholder="Links dos episódios (1 por linha)" class="form-control" required></textarea>
+        <button type="submit" class="btn">Salvar Anime</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Adicionar Mangá</h3>
+      <form id="mangaForm">
+        <input type="text" placeholder="Nome" id="mangaNome" class="form-control" required />
+        <input type="text" placeholder="Gênero" id="mangaGenero" class="form-control" required />
+        <input type="text" placeholder="Status" id="mangaStatus" class="form-control" required />
+        <input type="text" placeholder="Link da Capa" id="mangaCapa" class="form-control" required />
+        <textarea id="mangaCapitulos" placeholder="Capítulos e páginas (ex: 1:https://img1.jpg,https://img2.jpg)" class="form-control" required></textarea>
+        <button type="submit" class="btn">Salvar Mangá</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script>
+    const animeForm = document.getElementById("animeForm");
+    animeForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nome = document.getElementById("animeNome").value;
+      const genero = document.getElementById("animeGenero").value;
+      const status = document.getElementById("animeStatus").value;
+      const capa = document.getElementById("animeCapa").value;
+      const episodios = document.getElementById("animeEpisodios").value.split("\n").map(e => e.trim()).filter(e => e);
+
+      const anime = { nome, genero, status, capa, episodios };
+      firebase.database().ref("animes").push(anime).then(() => {
+        alert("Anime salvo!");
+        animeForm.reset();
+      });
+    });
+
+    const mangaForm = document.getElementById("mangaForm");
+    mangaForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nome = document.getElementById("mangaNome").value;
+      const genero = document.getElementById("mangaGenero").value;
+      const status = document.getElementById("mangaStatus").value;
+      const capa = document.getElementById("mangaCapa").value;
+      const capitulosRaw = document.getElementById("mangaCapitulos").value.trim().split("\n");
+
+      const capitulos = {};
+      capitulosRaw.forEach(linha => {
+        const [cap, links] = linha.split(":");
+        if (cap && links) {
+          capitulos[cap.trim()] = links.split(",").map(url => url.trim()).filter(url => url);
+        }
+      });
+
+      const manga = { nome, genero, status, capa, capitulos };
+      firebase.database().ref("mangas").push(manga).then(() => {
+        alert("Mangá salvo!");
+        mangaForm.reset();
+      });
+    });
+  </script>
+</body>
+</html>
