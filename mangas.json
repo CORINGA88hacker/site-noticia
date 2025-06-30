@@ -4,8 +4,8 @@
     "autor": "Masashi Kishimoto",
     "ano": 1999,
     "genero": "Ação, Aventura",
-    "capa": "https://m.media-amazon.com/images/I/91RpwagB7uL.jpg"
-    "capitulos": 108,
+    "capa": "https://upload.wikimedia.org/wikipedia/pt/6/6f/NarutoCoverTankobon1.jpg",
+    "capitulos": 700,
     "status": "Completo"
   },
   {
@@ -13,16 +13,16 @@
     "autor": "Eiichiro Oda",
     "ano": 1997,
     "genero": "Ação, Comédia",
-    "capa": "https://jumpg-assets.tokyo-cdn.com/secure/title/100149/title_thumbnail_portrait_list/326457.jpg?hash=eS9eo7ib2mmeFf4v4yUzjQ&expires=2145884400"
-    "capitulos": 108,
-    "status": "Completo"
+    "capa": "https://upload.wikimedia.org/wikipedia/pt/1/16/One_Piece_1.jpg",
+    "capitulos": 1100,
+    "status": "Em lançamento"
   },
   {
     "titulo": "Death Note",
     "autor": "Tsugumi Ohba",
     "ano": 2003,
     "genero": "Mistério, Sobrenatural",
-    "capa": "https://w11.death-note-manga.com/wp-content/uploads/2023/01/ezgif-5-66217686ce.jpg"
+    "capa": "https://upload.wikimedia.org/wikipedia/pt/2/29/Death_Note_Vol_1.jpg",
     "capitulos": 108,
     "status": "Completo"
   }
