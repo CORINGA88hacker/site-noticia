@@ -77,7 +77,7 @@
     const password = document.getElementById('password').value;
     auth.signInWithEmailAndPassword(email, password)
       .then(() => {
-        window.location.href = 'admin.html';
+        window.location.href = 'index.html';
       })
       .catch(e => {
         document.getElementById('error').innerText = e.message;
