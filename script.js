@@ -29,6 +29,8 @@ function mostrarMangas(mangas) {
       <p><i class="fa-solid fa-user"></i> ${m.autor}</p>
       <p><i class="fa-solid fa-calendar-day"></i> ${m.ano}</p>
       <p><i class="fa-solid fa-tag"></i> ${m.genero}</p>
+      <p><i class="fa-solid fa-book-open"></i> ${m.capitulos} capítulos</p>
+      <p><i class="fa-solid fa-signal"></i> ${m.status}</p>
     `;
     container.appendChild(card);
   });
