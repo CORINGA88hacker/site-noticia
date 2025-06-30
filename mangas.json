@@ -1,0 +1,14 @@
+[
+  {
+    "titulo": "Naruto",
+    "autor": "Masashi Kishimoto",
+    "ano": 1999,
+    "genero": "Ação, Aventura"
+  },
+  {
+    "titulo": "One Piece",
+    "autor": "Eiichiro Oda",
+    "ano": 1997,
+    "genero": "Ação, Comédia"
+  }
+]
