@@ -1,84 +1,495 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Painel de Administração</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel Admin StreamFlix Pro</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background: #121212; color:#eee; }
+  header { background:#1f1f1f; padding: 15px 20px; display: flex; justify-content: space-between; align-items:center; }
+  header h1 { margin: 0; color: #e50914; }
+  nav { display: flex; gap: 10px; flex-wrap: wrap; }
+  nav button {
+    background: none; border:none; color:#eee; font-size: 1rem; padding: 8px 15px; cursor:pointer;
+    border-bottom: 3px solid transparent; transition: 0.3s;
+  }
+  nav button.active, nav button:hover {
+    border-bottom: 3px solid #e50914;
+    font-weight: bold;
+  }
+  main { padding: 20px; max-width: 1200px; margin: auto; }
+  section { display: none; }
+  section.active { display: block; }
+
+  /* Form e tabelas básicas */
+  input, textarea, select, button {
+    font-size: 1rem;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 10px;
+  }
+  input, textarea, select {
+    width: 100%;
+    background: #222;
+    color: #eee;
+  }
+  button {
+    background: #e50914;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #b20710;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    color: #eee;
+  }
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid #444;
+  }
+  th {
+    background: #222;
+  }
+  tr:hover {
+    background: #2a2a2a;
+  }
+
+  #chatMensagens {
+    height: 300px;
+    overflow-y: auto;
+    background: #222;
+    padding: 10px;
+    border-radius: 5px;
+    color: #eee;
+    white-space: pre-wrap;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎛️ Painel de Administração</h1>
 
-    <div class="card">
-      <h3>Adicionar Anime</h3>
-      <form id="animeForm">
-        <input type="text" placeholder="Nome" id="animeNome" class="form-control" required />
-        <input type="text" placeholder="Gênero" id="animeGenero" class="form-control" required />
-        <input type="text" placeholder="Status" id="animeStatus" class="form-control" required />
-        <input type="text" placeholder="Link da Capa" id="animeCapa" class="form-control" required />
-        <textarea id="animeEpisodios" placeholder="Links dos episódios (1 por linha)" class="form-control" required></textarea>
-        <button type="submit" class="btn">Salvar Anime</button>
-      </form>
-    </div>
+<header>
+  <h1>StreamFlix Pro - Painel Admin</h1>
+  <nav>
+    <button class="tab-btn active" data-tab="filmes">Filmes</button>
+    <button class="tab-btn" data-tab="series">Séries</button>
+    <button class="tab-btn" data-tab="usuarios">Usuários</button>
+    <button class="tab-btn" data-tab="noticias">Notícias</button>
+    <button class="tab-btn" data-tab="chat">Chat</button>
+    <button class="tab-btn" data-tab="figurinhas">Figurinhas</button>
+    <button id="logoutBtn">Sair</button>
+  </nav>
+</header>
 
-    <div class="card">
-      <h3>Adicionar Mangá</h3>
-      <form id="mangaForm">
-        <input type="text" placeholder="Nome" id="mangaNome" class="form-control" required />
-        <input type="text" placeholder="Gênero" id="mangaGenero" class="form-control" required />
-        <input type="text" placeholder="Status" id="mangaStatus" class="form-control" required />
-        <input type="text" placeholder="Link da Capa" id="mangaCapa" class="form-control" required />
-        <textarea id="mangaCapitulos" placeholder="Capítulos e páginas (ex: 1:https://img1.jpg,https://img2.jpg)" class="form-control" required></textarea>
-        <button type="submit" class="btn">Salvar Mangá</button>
-      </form>
-    </div>
-  </div>
+<main>
+  <section id="filmes" class="active">
+    <h2>Gerenciar Filmes</h2>
+    <form id="formFilmes">
+      <input type="text" id="filmeTitulo" placeholder="Título" required />
+      <input type="text" id="filmeGenero" placeholder="Gênero" required />
+      <input type="text" id="filmeAno" placeholder="Ano" required />
+      <input type="text" id="filmeCapa" placeholder="URL da Capa" required />
+      <textarea id="filmeDescricao" placeholder="Descrição" rows="3" required></textarea>
+      <button type="submit">Adicionar Filme</button>
+    </form>
+    <table id="tabelaFilmes">
+      <thead>
+        <tr>
+          <th>Título</th><th>Gênero</th><th>Ano</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
-  <script src="firebase-config.js"></script>
-  <script>
-    const animeForm = document.getElementById("animeForm");
-    animeForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const nome = document.getElementById("animeNome").value;
-      const genero = document.getElementById("animeGenero").value;
-      const status = document.getElementById("animeStatus").value;
-      const capa = document.getElementById("animeCapa").value;
-      const episodios = document.getElementById("animeEpisodios").value.split("\n").map(e => e.trim()).filter(e => e);
+  <section id="series">
+    <h2>Gerenciar Séries</h2>
+    <form id="formSeries">
+      <input type="text" id="serieTitulo" placeholder="Título" required />
+      <input type="text" id="serieGenero" placeholder="Gênero" required />
+      <input type="text" id="serieAno" placeholder="Ano" required />
+      <input type="text" id="serieCapa" placeholder="URL da Capa" required />
+      <textarea id="serieDescricao" placeholder="Descrição" rows="3" required></textarea>
+      <button type="submit">Adicionar Série</button>
+    </form>
+    <table id="tabelaSeries">
+      <thead>
+        <tr>
+          <th>Título</th><th>Gênero</th><th>Ano</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
-      const anime = { nome, genero, status, capa, episodios };
-      firebase.database().ref("animes").push(anime).then(() => {
-        alert("Anime salvo!");
-        animeForm.reset();
+  <section id="usuarios">
+    <h2>Usuários Registrados</h2>
+    <table id="tabelaUsuarios">
+      <thead>
+        <tr><th>Email</th><th>UID</th><th>VIP</th><th>Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="noticias">
+    <h2>Gerenciar Notícias</h2>
+    <form id="formNoticias">
+      <input type="text" id="noticiaTitulo" placeholder="Título" required />
+      <textarea id="noticiaConteudo" placeholder="Conteúdo" rows="4" required></textarea>
+      <button type="submit">Adicionar Notícia</button>
+    </form>
+    <table id="tabelaNoticias">
+      <thead>
+        <tr><th>Título</th><th>Conteúdo</th><th>Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="chat">
+    <h2>Chat Global</h2>
+    <div id="chatMensagens"></div>
+    <input type="text" id="chatInput" placeholder="Mensagem..." />
+    <button id="enviarChat">Enviar</button>
+  </section>
+
+  <section id="figurinhas">
+    <h2>Gerenciar Figurinhas</h2>
+    <form id="formFigurinhas">
+      <input type="text" id="figurinhaNome" placeholder="Nome da Figurinha" required />
+      <input type="url" id="figurinhaUrl" placeholder="URL da Imagem" required />
+      <button type="submit">Adicionar Figurinha</button>
+    </form>
+    <table id="tabelaFigurinhas">
+      <thead>
+        <tr><th>Nome</th><th>URL</th><th>Ações</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  // Controle de abas
+  const tabs = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('main section');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    firebase.auth().signOut().then(() => {
+      window.location.href = 'login.html';
+    });
+  });
+
+  // Referências Firebase
+  const db = firebase.database();
+  const auth = firebase.auth();
+
+  // Redirecionar se não logado
+  auth.onAuthStateChanged(user => {
+    if (!user) window.location.href = 'login.html';
+    else carregarDados();
+  });
+
+  // --- FILMES ---
+
+  const formFilmes = document.getElementById('formFilmes');
+  const tabelaFilmes = document.querySelector('#tabelaFilmes tbody');
+
+  function carregarFilmes() {
+    tabelaFilmes.innerHTML = '';
+    db.ref('filmes').on('value', snapshot => {
+      tabelaFilmes.innerHTML = '';
+      snapshot.forEach(child => {
+        const filme = child.val();
+        const id = child.key;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${filme.titulo}</td><td>${filme.genero}</td><td>${filme.ano}</td>
+          <td>
+            <button onclick="editarFilme('${id}')">Editar</button>
+            <button onclick="excluirFilme('${id}')">Excluir</button>
+          </td>`;
+        tabelaFilmes.appendChild(tr);
       });
     });
+  }
 
-    const mangaForm = document.getElementById("mangaForm");
-    mangaForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const nome = document.getElementById("mangaNome").value;
-      const genero = document.getElementById("mangaGenero").value;
-      const status = document.getElementById("mangaStatus").value;
-      const capa = document.getElementById("mangaCapa").value;
-      const capitulosRaw = document.getElementById("mangaCapitulos").value.trim().split("\n");
+  formFilmes.addEventListener('submit', e => {
+    e.preventDefault();
+    const novoFilme = {
+      titulo: document.getElementById('filmeTitulo').value,
+      genero: document.getElementById('filmeGenero').value,
+      ano: document.getElementById('filmeAno').value,
+      capa: document.getElementById('filmeCapa').value,
+      descricao: document.getElementById('filmeDescricao').value
+    };
+    db.ref('filmes').push(novoFilme);
+    formFilmes.reset();
+  });
 
-      const capitulos = {};
-      capitulosRaw.forEach(linha => {
-        const [cap, links] = linha.split(":");
-        if (cap && links) {
-          capitulos[cap.trim()] = links.split(",").map(url => url.trim()).filter(url => url);
-        }
-      });
+  window.editarFilme = function(id) {
+    db.ref('filmes/' + id).once('value').then(snapshot => {
+      const f = snapshot.val();
+      document.getElementById('filmeTitulo').value = f.titulo;
+      document.getElementById('filmeGenero').value = f.genero;
+      document.getElementById('filmeAno').value = f.ano;
+      document.getElementById('filmeCapa').value = f.capa;
+      document.getElementById('filmeDescricao').value = f.descricao;
+      formFilmes.onsubmit = e => {
+        e.preventDefault();
+        db.ref('filmes/' + id).set({
+          titulo: document.getElementById('filmeTitulo').value,
+          genero: document.getElementById('filmeGenero').value,
+          ano: document.getElementById('filmeAno').value,
+          capa: document.getElementById('filmeCapa').value,
+          descricao: document.getElementById('filmeDescricao').value
+        });
+        formFilmes.reset();
+        formFilmes.onsubmit = defaultSubmitFilme;
+      };
+    });
+  }
 
-      const manga = { nome, genero, status, capa, capitulos };
-      firebase.database().ref("mangas").push(manga).then(() => {
-        alert("Mangá salvo!");
-        mangaForm.reset();
+  window.excluirFilme = function(id) {
+    if(confirm('Confirma a exclusão do filme?')) {
+      db.ref('filmes/' + id).remove();
+    }
+  }
+
+  const defaultSubmitFilme = formFilmes.onsubmit;
+
+  // --- SÉRIES ---
+
+  const formSeries = document.getElementById('formSeries');
+  const tabelaSeries = document.querySelector('#tabelaSeries tbody');
+
+  function carregarSeries() {
+    tabelaSeries.innerHTML = '';
+    db.ref('series').on('value', snapshot => {
+      tabelaSeries.innerHTML = '';
+      snapshot.forEach(child => {
+        const serie = child.val();
+        const id = child.key;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${serie.titulo}</td><td>${serie.genero}</td><td>${serie.ano}</td>
+          <td>
+            <button onclick="editarSerie('${id}')">Editar</button>
+            <button onclick="excluirSerie('${id}')">Excluir</button>
+          </td>`;
+        tabelaSeries.appendChild(tr);
       });
     });
-  </script>
+  }
+
+  formSeries.addEventListener('submit', e => {
+    e.preventDefault();
+    const novaSerie = {
+      titulo: document.getElementById('serieTitulo').value,
+      genero: document.getElementById('serieGenero').value,
+      ano: document.getElementById('serieAno').value,
+      capa: document.getElementById('serieCapa').value,
+      descricao: document.getElementById('serieDescricao').value
+    };
+    db.ref('series').push(novaSerie);
+    formSeries.reset();
+  });
+
+  window.editarSerie = function(id) {
+    db.ref('series/' + id).once('value').then(snapshot => {
+      const s = snapshot.val();
+      document.getElementById('serieTitulo').value = s.titulo;
+      document.getElementById('serieGenero').value = s.genero;
+      document.getElementById('serieAno').value = s.ano;
+      document.getElementById('serieCapa').value = s.capa;
+      document.getElementById('serieDescricao').value = s.descricao;
+      formSeries.onsubmit = e => {
+        e.preventDefault();
+        db.ref('series/' + id).set({
+          titulo: document.getElementById('serieTitulo').value,
+          genero: document.getElementById('serieGenero').value,
+          ano: document.getElementById('serieAno').value,
+          capa: document.getElementById('serieCapa').value,
+          descricao: document.getElementById('serieDescricao').value
+        });
+        formSeries.reset();
+        formSeries.onsubmit = defaultSubmitSerie;
+      };
+    });
+  }
+
+  window.excluirSerie = function(id) {
+    if(confirm('Confirma a exclusão da série?')) {
+      db.ref('series/' + id).remove();
+    }
+  }
+
+  const defaultSubmitSerie = formSeries.onsubmit;
+
+  // --- USUÁRIOS ---
+
+  const tabelaUsuarios = document.querySelector('#tabelaUsuarios tbody');
+
+  function carregarUsuarios() {
+    tabelaUsuarios.innerHTML = '';
+    db.ref('users').on('value', snapshot => {
+      tabelaUsuarios.innerHTML = '';
+      snapshot.forEach(child => {
+        const user = child.val();
+        const id = child.key;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${user.email || 'Sem email'}</td><td>${id}</td><td>${user.vip ? 'Sim' : 'Não'}</td>
+          <td>
+            <button onclick="toggleVIP('${id}', ${user.vip ? 'false' : 'true'})">${user.vip ? 'Remover VIP' : 'Tornar VIP'}</button>
+            <button onclick="excluirUsuario('${id}')">Excluir</button>
+          </td>`;
+        tabelaUsuarios.appendChild(tr);
+      });
+    });
+  }
+
+  window.toggleVIP = function(id, makeVip) {
+    db.ref('users/' + id).update({ vip: makeVip });
+  }
+
+  window.excluirUsuario = function(id) {
+    if(confirm('Confirma a exclusão do usuário?')) {
+      db.ref('users/' + id).remove();
+    }
+  }
+
+  // --- NOTÍCIAS ---
+
+  const formNoticias = document.getElementById('formNoticias');
+  const tabelaNoticias = document.querySelector('#tabelaNoticias tbody');
+
+  function carregarNoticias() {
+    tabelaNoticias.innerHTML = '';
+    db.ref('noticias').on('value', snapshot => {
+      tabelaNoticias.innerHTML = '';
+      snapshot.forEach(child => {
+        const noticia = child.val();
+        const id = child.key;
+        const shortText = noticia.conteudo.length > 50 ? noticia.conteudo.substring(0, 47) + '...' : noticia.conteudo;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${noticia.titulo}</td><td>${shortText}</td>
+          <td>
+            <button onclick="excluirNoticia('${id}')">Excluir</button>
+          </td>`;
+        tabelaNoticias.appendChild(tr);
+      });
+    });
+  }
+
+  formNoticias.addEventListener('submit', e => {
+    e.preventDefault();
+    const novaNoticia = {
+      titulo: document.getElementById('noticiaTitulo').value,
+      conteudo: document.getElementById('noticiaConteudo').value
+    };
+    db.ref('noticias').push(novaNoticia);
+    formNoticias.reset();
+  });
+
+  window.excluirNoticia = function(id) {
+    if(confirm('Confirma a exclusão da notícia?')) {
+      db.ref('noticias/' + id).remove();
+    }
+  }
+
+  // --- CHAT ---
+
+  const chatMensagens = document.getElementById('chatMensagens');
+  const chatInput = document.getElementById('chatInput');
+  const enviarChat = document.getElementById('enviarChat');
+
+  function carregarChat() {
+    db.ref('chat').limitToLast(50).on('value', snapshot => {
+      chatMensagens.innerHTML = '';
+      snapshot.forEach(child => {
+        const msg = child.val();
+        const div = document.createElement('div');
+        div.textContent = `${msg.usuario}: ${msg.mensagem}`;
+        chatMensagens.appendChild(div);
+      });
+      chatMensagens.scrollTop = chatMensagens.scrollHeight;
+    });
+  }
+
+  enviarChat.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) return alert('Você precisa estar logado!');
+    const mensagem = chatInput.value.trim();
+    if (mensagem === '') return;
+    db.ref('chat').push({
+      usuario: user.email || 'Anônimo',
+      mensagem,
+      timestamp: Date.now()
+    });
+    chatInput.value = '';
+  });
+
+  // --- FIGURINHAS ---
+
+  const formFigurinhas = document.getElementById('formFigurinhas');
+  const tabelaFigurinhas = document.querySelector('#tabelaFigurinhas tbody');
+
+  function carregarFigurinhas() {
+    tabelaFigurinhas.innerHTML = '';
+    db.ref('figurinhas').on('value', snapshot => {
+      tabelaFigurinhas.innerHTML = '';
+      snapshot.forEach(child => {
+        const figurinha = child.val();
+        const id = child.key;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${figurinha.nome}</td><td><a href="${figurinha.url}" target="_blank">Link</a></td>
+          <td><button onclick="excluirFigurinha('${id}')">Excluir</button></td>`;
+        tabelaFigurinhas.appendChild(tr);
+      });
+    });
+  }
+
+  formFigurinhas.addEventListener('submit', e => {
+    e.preventDefault();
+    const novaFigurinha = {
+      nome: document.getElementById('figurinhaNome').value,
+      url: document.getElementById('figurinhaUrl').value
+    };
+    db.ref('figurinhas').push(novaFigurinha);
+    formFigurinhas.reset();
+  });
+
+  window.excluirFigurinha = function(id) {
+    if(confirm('Confirma a exclusão da figurinha?')) {
+      db.ref('figurinhas/' + id).remove();
+    }
+  }
+
+  // Carrega dados iniciais
+  function carregarDados() {
+    carregarFilmes();
+    carregarSeries();
+    carregarUsuarios();
+    carregarNoticias();
+    carregarChat();
+    carregarFigurinhas();
+  }
+</script>
 </body>
 </html>
