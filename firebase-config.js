@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
   apiKey: "AIzaSyBHIc2E4XwRO5FXo4uHlTQVRArOis73MjE",
   authDomain: "projeto-deus-yato-928.firebaseapp.com",
