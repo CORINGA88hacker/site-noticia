@@ -1,3 +1,4 @@
+
 const conteudo = document.getElementById('conteudo');
 
 function criarCard(tipo, id, item) {
