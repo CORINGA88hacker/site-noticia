@@ -1,1 +1,90 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - StreamFlix</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      width: 300px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #333;
+      border: none;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #e50914;
+      border: none;
+      font-weight: bold;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #e50914;
+    }
+  </style>
+</head>
+<body>
+  <h1>StreamFlix</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="E-mail" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, senha)
+        .then(cred => {
+          const uid = cred.user.uid;
+          firebase.database().ref("users/" + uid).once("value").then(snapshot => {
+            const userData = snapshot.val();
+            if (userData && userData.admin) {
+              window.location.href = "admin.html";
+            } else {
+              window.location.href = "index.html";
+            }
+          });
+        })
+        .catch(err => {
+          alert("Erro ao fazer login: " + err.message);
+        });
+    });
+  </script>
+</body>
+</html>
